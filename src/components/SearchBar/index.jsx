@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import {IoSearch, IoClose} from 'react-icons/io5';
+import {useState} from 'react';
+import {motion} from 'framer-motion';
+import { useClickOutside } from 'react-click-outside-hook';
 
-const SearchBarContainer = styled.div`
+const SearchBarContainer = styled(motion.div)`
     display: flex;
     flex-direction: column;
     width: 34em;
@@ -68,13 +71,45 @@ const CloseIcon= styled.span`
 `
 
 export function SearchBar(props){
-    return <SearchBarContainer>
+
+    const [isExpanded, setExpanded]= useState(false);
+    const [parentRef, isClickedOutside] = useClickOutside();
+    const inputRef= useRef();
+
+    const expandContainer = () => {
+        setExpanded(true);
+    }
+
+    const collapseContainer = () => {
+        setExpanded(false);
+        if(inputRef.current)
+        inputRef.current.value="";
+    }
+    const conainterVariants = {
+        expanded: {
+            height: "20em",
+        },
+        collapsed: {
+            height: "3.8em"
+        }
+    }
+
+    useEffect(()=>{
+        if(isClickedOutside) collapseContainer();
+    }, [isClickedOutside]);
+
+    const containerTransition = {type: 'spring', damping: 22, stiffness: 150}
+
+    return <SearchBarContainer animate={isExpanded ? "expanded" : "collapse"} 
+            variants={conainterVariants}
+            ref={parentRef}
+            transition={containerTransition}>
         <SearchInputContainer>
             <SearchIcon>
                 <IoSearch/>
             </SearchIcon>
-            <SearchInput placeholder="Search for Series/Shows"/>
-            <CloseIcon>
+            <SearchInput placeholder="Search for Series/Shows" onFocus={expandContainer} ref={inputRef}/>
+            <CloseIcon onClick={collapseContainer}>
             <IoClose />
             </CloseIcon> 
         </SearchInputContainer>

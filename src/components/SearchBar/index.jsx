@@ -141,9 +141,10 @@ export function SearchBar(props){
     //encoding search query with endcodeURI
     const prepareSearchQuery = (query) => {
 
-        const url = `http://api.tvmaze.com/search/shows?q=${query}`
+        const url = `http://api.tvmaze.com/search/shows?q=${query}`;
 
         return encodeURI(url);
+        
     }
 
     //async api call to tvmaze api.
@@ -161,11 +162,11 @@ export function SearchBar(props){
         //get request with axios to contact encoded API url
         const response = await axios.get(URL).catch((err)=>{
             console.log("Error: ", err);
+        });
 
-            if(response) {
-                console.log("Response: ", response.data);
-            }
-        })
+        if(response) {
+            console.log("Response: ", response.data);
+        }
     }
 
 

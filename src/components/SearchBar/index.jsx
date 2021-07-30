@@ -4,6 +4,7 @@ import {IoSearch, IoClose} from 'react-icons/io5';
 import {useState} from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
 import { useClickOutside } from 'react-click-outside-hook';
+import { MoonLoader } from 'react-spinners';
 
 const SearchBarContainer = styled(motion.div)`
     display: flex;
@@ -85,6 +86,31 @@ export function SearchBar(props){
         if(inputRef.current)
         inputRef.current.value="";
     }
+
+    const LineSeperator = styled.span`
+    display: flex;
+    min-width: 100%;
+    min-height: 2px;
+    background-color: #d8d8d878;
+    `
+
+    const SearchContent = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    `;
+
+    const LoadingWrapper = styled.div`
+    width: 100%;
+    height: 100%;
+    display : flex;
+    align-items: center;
+    justify-content: center;
+    `;
+
+
     const conainterVariants = {
         expanded: {
             height: "20em",
@@ -122,5 +148,11 @@ export function SearchBar(props){
             </CloseIcon>}
             </AnimatePresence>
         </SearchInputContainer>
+        <LineSeperator/>
+        <SearchContent>
+            <LoadingWrapper>
+                <MoonLoader loading color="#000" size={20}/>
+            </LoadingWrapper>
+        </SearchContent>
     </SearchBarContainer>
 }

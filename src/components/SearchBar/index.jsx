@@ -5,6 +5,8 @@ import {useState} from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
 import { useClickOutside } from 'react-click-outside-hook';
 import { MoonLoader } from 'react-spinners';
+import { useDebounce } from '../../hooks/debounceHook';
+import axios from 'axios';
 
 const SearchBarContainer = styled(motion.div)`
     display: flex;
@@ -71,60 +73,106 @@ const CloseIcon= styled(motion.span)`
     }
 `
 
+const SearchContent = styled.div`
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+padding: 1em;
+`;
+
+const LoadingWrapper = styled.div`
+width: 100%;
+height: 100%;
+display : flex;
+align-items: center;
+justify-content: center;
+`;
+
+
+const LineSeperator = styled.span`
+display: flex;
+min-width: 100%;
+min-height: 2px;
+background-color: #d8d8d878;
+`
+const containerTransition = {type: 'spring', damping: 22, stiffness: 150}
+
+const conainterVariants = {
+    expanded: {
+        height: "20em",
+    },
+    collapsed: {
+        height: "3.8em"
+    }
+}
+
 export function SearchBar(props){
 
     const [isExpanded, setExpanded]= useState(false);
     const [parentRef, isClickedOutside] = useClickOutside();
     const inputRef= useRef();
+    const [searchQuery, setSearchQuery]= useState("");
+    const [isLoading, setLoading]=useState(false);
 
+    const changeHandler = (e)=>{
+        e.preventDefault();
+        setSearchQuery(e.target.value);
+    }
+
+    //opening search container.
     const expandContainer = () => {
         setExpanded(true);
     }
 
+    //setting expanded state to false, collapsing container, clearing search.
     const collapseContainer = () => {
         setExpanded(false);
-        if(inputRef.current)
-        inputRef.current.value="";
+        setSearchQuery("");
+        if (inputRef.current) inputRef.current.value="";
     }
 
-    const LineSeperator = styled.span`
-    display: flex;
-    min-width: 100%;
-    min-height: 2px;
-    background-color: #d8d8d878;
-    `
-
-    const SearchContent = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 1em;
-    `;
-
-    const LoadingWrapper = styled.div`
-    width: 100%;
-    height: 100%;
-    display : flex;
-    align-items: center;
-    justify-content: center;
-    `;
-
-
-    const conainterVariants = {
-        expanded: {
-            height: "20em",
-        },
-        collapsed: {
-            height: "3.8em"
-        }
-    }
-
+    //checking for clicks outside of the search bar
     useEffect(()=>{
         if(isClickedOutside) collapseContainer();
     }, [isClickedOutside]);
 
-    const containerTransition = {type: 'spring', damping: 22, stiffness: 150}
+    
+    //encoding search query with endcodeURI
+    const prepareSearchQuery = (query) => {
+
+        const url = `http://api.tvmaze.com/search/shows?q=${query}`
+
+        return encodeURI(url);
+    }
+
+    //async api call to tvmaze api.
+
+    const searchTvShow = async ()=>{
+
+        //if the search query is an empty string/empty, return do not call.
+        if(!searchQuery || searchQuery.trim() === "")
+        return;
+        
+        setLoading(true);
+
+        const URL = prepareSearchQuery(searchQuery);
+        
+        //get request with axios to contact encoded API url
+        const response = await axios.get(URL).catch((err)=>{
+            console.log("Error: ", err);
+
+            if(response) {
+                console.log("Response: ", response.data);
+            }
+        })
+    }
+
+
+    useDebounce(searchQuery, 500, searchTvShow);
+
+    console.log("Value: ", searchQuery);
+
 
     return <SearchBarContainer animate={isExpanded ? "expanded" : "collapse"} 
             variants={conainterVariants}
@@ -134,7 +182,13 @@ export function SearchBar(props){
             <SearchIcon>
                 <IoSearch/>
             </SearchIcon>
-            <SearchInput placeholder="Search for Series/Shows" onFocus={expandContainer} ref={inputRef}/>
+            <SearchInput 
+            placeholder="Search for Series/Shows" 
+            onFocus={expandContainer} 
+            ref={inputRef}
+            value={searchQuery}
+            onChange={changeHandler}
+            />
 
             <AnimatePresence>
             {isExpanded && <CloseIcon 

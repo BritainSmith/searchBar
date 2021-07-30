@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import {IoSearch, IoClose} from 'react-icons/io5';
 import {useState} from 'react';
-import {motion} from 'framer-motion';
+import {AnimatePresence, motion} from 'framer-motion';
 import { useClickOutside } from 'react-click-outside-hook';
 
 const SearchBarContainer = styled(motion.div)`
@@ -58,7 +58,7 @@ const SearchIcon = styled.span`
 
 `;
 
-const CloseIcon= styled.span`
+const CloseIcon= styled(motion.span)`
     color:#bebebe;
     font-size: 23px;
     vertical-align: middle;
@@ -109,9 +109,18 @@ export function SearchBar(props){
                 <IoSearch/>
             </SearchIcon>
             <SearchInput placeholder="Search for Series/Shows" onFocus={expandContainer} ref={inputRef}/>
-            <CloseIcon onClick={collapseContainer}>
+
+            <AnimatePresence>
+            {isExpanded && <CloseIcon 
+            key="closeIcon" 
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            exit={{opacity:0}}
+            onClick={collapseContainer}
+            transition = {{ duration: 0.2}}>
             <IoClose />
-            </CloseIcon> 
+            </CloseIcon>}
+            </AnimatePresence>
         </SearchInputContainer>
     </SearchBarContainer>
 }

@@ -74,7 +74,7 @@ const CloseIcon= styled(motion.span)`
 `
 
 const SearchContent = styled.div`
-width: 100%;
+width: 95%;
 height: 100%;
 display: flex;
 flex-direction: column;
@@ -90,6 +90,14 @@ align-items: center;
 justify-content: center;
 `;
 
+const WarningMessage = styled.span`
+
+color: #a1a1a1;
+font-size: 14px;
+display : flex;
+align-self: center;
+justify-self: center;
+`;  
 
 const LineSeperator = styled.span`
 display: flex;
@@ -116,11 +124,14 @@ export function SearchBar(props){
     const [searchQuery, setSearchQuery]= useState("");
     const [isLoading, setLoading]=useState(false);
     const [tvShows, setTvShows]=useState([]);
+    const [noTvShows, setNoTvShows] =useState(false);
 
     const isEmpty= !tvShows || tvShows.length === 0;
 
     const changeHandler = (e)=>{
         e.preventDefault();
+        if(e.target.value.trim() ==="")
+        setNoTvShows(false);
         setSearchQuery(e.target.value);
     }
 
@@ -134,6 +145,7 @@ export function SearchBar(props){
         setExpanded(false);
         setSearchQuery("");
         setLoading(false);
+        setNoTvShows(false);
         setTvShows([]);
         if (inputRef.current) inputRef.current.value="";
     }
@@ -162,6 +174,7 @@ export function SearchBar(props){
         return;
         
         setLoading(true);
+        setNoTvShows(false);
 
         const URL = prepareSearchQuery(searchQuery);
         
@@ -172,6 +185,10 @@ export function SearchBar(props){
 
         if(response) {
             console.log("Response: ", response.data);
+
+            if(response.data && response.data.length === 0)
+                setNoTvShows(true);
+
             setTvShows(response.data);
         }
         setLoading(false);
@@ -213,6 +230,19 @@ export function SearchBar(props){
         </SearchInputContainer>
         {isExpanded && <LineSeperator/>}
         {isExpanded &&<SearchContent>
+            {!isLoading && isEmpty && !noTvShows && (  
+            <LoadingWrapper>
+            <WarningMessage>
+               Start typing to Search
+            </WarningMessage>
+            </LoadingWrapper>)}
+            {!isLoading && noTvShows && (  
+            <LoadingWrapper>
+            <WarningMessage>
+                No Tv Shows or Series found!
+            </WarningMessage>
+            </LoadingWrapper>)}
+            
             {isLoading &&(<LoadingWrapper>
                 <MoonLoader loading color="#000" size={20}/>
             </LoadingWrapper>

@@ -17,7 +17,6 @@ const SearchBarContainer = styled(motion.div)`
     background-color: #fff;
     border-radius: 6px;
     box-shadow: 0px 2px 12px 3px rgba(0, 0, 0, 0.14);
-    overflow: hidden;
     `;
 
 const SearchInputContainer = styled.div`
@@ -80,6 +79,7 @@ height: 100%;
 display: flex;
 flex-direction: column;
 padding: 1em;
+overflow-y: auto;
 `;
 
 const LoadingWrapper = styled.div`
@@ -101,7 +101,7 @@ const containerTransition = {type: 'spring', damping: 22, stiffness: 150}
 
 const conainterVariants = {
     expanded: {
-        height: "20em",
+        height: "30em",
     },
     collapsed: {
         height: "3.8em"
@@ -134,6 +134,7 @@ export function SearchBar(props){
         setExpanded(false);
         setSearchQuery("");
         setLoading(false);
+        setTvShows([]);
         if (inputRef.current) inputRef.current.value="";
     }
 
@@ -210,8 +211,8 @@ export function SearchBar(props){
             </CloseIcon>}
             </AnimatePresence>
         </SearchInputContainer>
-        <LineSeperator/>
-        <SearchContent>
+        {isExpanded && <LineSeperator/>}
+        {isExpanded &&<SearchContent>
             {isLoading &&(<LoadingWrapper>
                 <MoonLoader loading color="#000" size={20}/>
             </LoadingWrapper>
@@ -228,6 +229,6 @@ export function SearchBar(props){
             ))}
             </>
             )}
-        </SearchContent>
+        </SearchContent>}
     </SearchBarContainer>
 }

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 
 const TvShowContainer = styled.div`
-    width: 100%;
+    width: 95%;
     min-height: 6em;
     display: flex;
     border-bottom: 2px solid #d8d8d852;
@@ -25,7 +25,7 @@ const TvShowContainer = styled.div`
     `;
     
     const Name = styled.h3`
-        font-size: 15x;
+        font-size: 15px;
         color: #000;
         margin-left: 10px;
         flex: 2;
@@ -50,7 +50,7 @@ export function TvShow(props){
             <img src={thumbnailSrc}/>
         </Thumbnail>
         <Name>{name}</Name>
-        {rating && <Rating>{rating}</Rating>}
+        {<Rating>{rating || "N/A"}</Rating>}
 
     </TvShowContainer>
 }

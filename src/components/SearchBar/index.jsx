@@ -6,6 +6,7 @@ import {AnimatePresence, motion} from 'framer-motion';
 import { useClickOutside } from 'react-click-outside-hook';
 import { MoonLoader } from 'react-spinners';
 import { useDebounce } from '../../hooks/debounceHook';
+import {TvShow} from './tvShow/index';
 import axios from 'axios';
 
 const SearchBarContainer = styled(motion.div)`
@@ -114,6 +115,9 @@ export function SearchBar(props){
     const inputRef= useRef();
     const [searchQuery, setSearchQuery]= useState("");
     const [isLoading, setLoading]=useState(false);
+    const [tvShows, setTvShows]=useState([]);
+
+    const isEmpty= !tvShows || tvShows.length === 0;
 
     const changeHandler = (e)=>{
         e.preventDefault();
@@ -129,6 +133,7 @@ export function SearchBar(props){
     const collapseContainer = () => {
         setExpanded(false);
         setSearchQuery("");
+        setLoading(false);
         if (inputRef.current) inputRef.current.value="";
     }
 
@@ -166,7 +171,9 @@ export function SearchBar(props){
 
         if(response) {
             console.log("Response: ", response.data);
+            setTvShows(response.data);
         }
+        setLoading(false);
     }
 
 
@@ -205,9 +212,22 @@ export function SearchBar(props){
         </SearchInputContainer>
         <LineSeperator/>
         <SearchContent>
-            <LoadingWrapper>
+            {isLoading &&(<LoadingWrapper>
                 <MoonLoader loading color="#000" size={20}/>
             </LoadingWrapper>
+            )}
+            {!isLoading && !isEmpty && (
+             <>
+            {tvShows.map(({show})=>(
+                <TvShow 
+                        key= {show.id}
+                        thumbnailSrc={show.image && show.image.medium}
+                        name={show.name}
+                        rating={show.rating && show.rating.average}
+                 />
+            ))}
+            </>
+            )}
         </SearchContent>
     </SearchBarContainer>
 }
